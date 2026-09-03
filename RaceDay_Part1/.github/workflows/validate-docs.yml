@@ -1,0 +1,28 @@
+name: Validate RaceDay Planning Documents
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate required planning files
+        shell: bash
+        run: |
+          set -e
+
+          test -d docs
+          test -f docs/raceday_erd.png
+          test -f docs/raceday_erd.pdf
+          test -f docs/endpoint_plan.md
+          test -f docs/endpoint_plan.pdf
+          test -f docs/raceday_database.sql
+          test -f README.md
+
+          echo "RaceDay planning repository structure is valid."

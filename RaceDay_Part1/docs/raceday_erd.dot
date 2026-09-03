@@ -1,0 +1,77 @@
+digraph RaceDayERD {
+  graph [rankdir=LR, bgcolor="white", pad="0.25", nodesep="0.5", ranksep="0.8", splines=ortho];
+  node [shape=plain, fontname="Arial"];
+  edge [fontname="Arial", fontsize=10, color="#333333"];
+
+  Users [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#1f4e79"><FONT COLOR="white"><B>USERS</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK UserID</B> INT IDENTITY</TD></TR>
+      <TR><TD ALIGN="LEFT">FirstName NVARCHAR(50)</TD></TR>
+      <TR><TD ALIGN="LEFT">LastName NVARCHAR(50)</TD></TR>
+      <TR><TD ALIGN="LEFT">Email NVARCHAR(120) UNIQUE</TD></TR>
+      <TR><TD ALIGN="LEFT">PasswordHash NVARCHAR(255)</TD></TR>
+      <TR><TD ALIGN="LEFT">Phone NVARCHAR(20)</TD></TR>
+      <TR><TD ALIGN="LEFT">Role Participant | Organizer</TD></TR>
+      <TR><TD ALIGN="LEFT">CreatedAt DATETIME2</TD></TR>
+    </TABLE>>];
+
+  Events [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#1f4e79"><FONT COLOR="white"><B>EVENTS</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK EventID</B> INT IDENTITY</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK OrganizerID</B> → Users.UserID</TD></TR>
+      <TR><TD ALIGN="LEFT">EventName NVARCHAR(100)</TD></TR>
+      <TR><TD ALIGN="LEFT">EventDate DATE</TD></TR>
+      <TR><TD ALIGN="LEFT">StartTime TIME</TD></TR>
+      <TR><TD ALIGN="LEFT">Venue NVARCHAR(150)</TD></TR>
+      <TR><TD ALIGN="LEFT">Description NVARCHAR(500)</TD></TR>
+      <TR><TD ALIGN="LEFT">Capacity INT &gt; 0</TD></TR>
+      <TR><TD ALIGN="LEFT">Status Open | Closed | Completed</TD></TR>
+    </TABLE>>];
+
+  Categories [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#1f4e79"><FONT COLOR="white"><B>CATEGORIES</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK CategoryID</B> INT IDENTITY</TD></TR>
+      <TR><TD ALIGN="LEFT">CategoryName NVARCHAR(80) UNIQUE</TD></TR>
+      <TR><TD ALIGN="LEFT">Description NVARCHAR(250)</TD></TR>
+    </TABLE>>];
+
+  EventCategories [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#548235"><FONT COLOR="white"><B>EVENTCATEGORIES</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK/FK EventID</B> → Events.EventID</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK/FK CategoryID</B> → Categories.CategoryID</TD></TR>
+    </TABLE>>];
+
+  Enrolments [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#1f4e79"><FONT COLOR="white"><B>ENROLMENTS</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK EnrolmentID</B> INT IDENTITY</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK EventID</B> → Events.EventID</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK ParticipantID</B> → Users.UserID</TD></TR>
+      <TR><TD ALIGN="LEFT">EnrolmentDate DATETIME2</TD></TR>
+      <TR><TD ALIGN="LEFT">Status Confirmed | Cancelled</TD></TR>
+      <TR><TD ALIGN="LEFT">UNIQUE(EventID, ParticipantID)</TD></TR>
+    </TABLE>>];
+
+  Results [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD BGCOLOR="#1f4e79"><FONT COLOR="white"><B>RESULTS</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK ResultID</B> INT IDENTITY</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK EnrolmentID</B> → Enrolments.EnrolmentID</TD></TR>
+      <TR><TD ALIGN="LEFT">FinishTime TIME</TD></TR>
+      <TR><TD ALIGN="LEFT">Position INT &gt; 0</TD></TR>
+      <TR><TD ALIGN="LEFT">Points INT ≥ 0</TD></TR>
+      <TR><TD ALIGN="LEFT">RecordedAt DATETIME2</TD></TR>
+      <TR><TD ALIGN="LEFT">UNIQUE(EnrolmentID)</TD></TR>
+    </TABLE>>];
+
+  Users -> Events [label="1 : many\nOrganizer creates Events"];
+  Users -> Enrolments [label="1 : many\nParticipant enrols"];
+  Events -> EventCategories [label="1 : many"];
+  Categories -> EventCategories [label="1 : many"];
+  Events -> Enrolments [label="1 : many"];
+  Enrolments -> Results [label="1 : 0..1"];
+}
