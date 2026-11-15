@@ -1,0 +1,11 @@
+.vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+.env
+appsettings.Local.json
+appsettings.Development.local.json
+wwwroot/uploads/**
+!wwwroot/uploads/.gitkeep
+TestResults/

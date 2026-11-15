@@ -1,0 +1,61 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: raceday-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD:?Copy .env.example to .env and set SA_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - raceday_sql_data:/var/opt/mssql
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_PROJECT: RaceDay.Api
+    container_name: raceday-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      Docker__DisableHttpsRedirection: "true"
+      Database__CreateOnStartup: "true"
+      Swagger__Enabled: "true"
+      ConnectionStrings__RaceDayConnection: "Server=sqlserver,1433;Database=RaceDayDB;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;Encrypt=False;MultipleActiveResultSets=True"
+      Security__OrganizerInviteCode: ${ORGANIZER_INVITE_CODE:-}
+      AzureStorage__ConnectionString: ${AZURE_STORAGE_CONNECTION_STRING:-}
+      AzureStorage__ContainerName: ${AZURE_STORAGE_CONTAINER:-raceday-images}
+      ImageStorage__PublicBaseUrl: http://localhost:8081
+    ports:
+      - "8081:8080"
+    volumes:
+      - raceday_uploads:/app/wwwroot/uploads
+    depends_on:
+      - sqlserver
+    restart: unless-stopped
+
+  mvc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_PROJECT: RaceDay.Mvc
+    container_name: raceday-mvc
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      Docker__DisableHttpsRedirection: "true"
+      ApiSettings__BaseUrl: http://api:8080/
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  raceday_sql_data:
+  raceday_uploads:

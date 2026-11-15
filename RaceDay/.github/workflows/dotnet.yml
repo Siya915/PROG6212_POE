@@ -1,0 +1,51 @@
+name: RaceDay build and test
+
+on:
+  push:
+    branches: [ "main", "master", "part-1-2-3" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Validate required planning documents
+        shell: bash
+        run: |
+          test -f docs/raceday_erd.png
+          test -f docs/endpoint_plan.md
+          test -f docs/RaceDay_Endpoint_Plan.docx
+          test -f docs/raceday_database.sql
+          test -f docs/RaceDay_Parts_1_2_3_Final_Project_Report.docx
+          test -f RaceDay.sln
+          test -f Dockerfile
+          test -f docker-compose.yml
+          test -f RaceDay.Api/RaceDay.Api.csproj
+          test -f RaceDay.Mvc/RaceDay.Mvc.csproj
+          test -f RaceDay.Tests/RaceDay.Tests.csproj
+
+      - name: Restore solution
+        run: dotnet restore RaceDay.sln
+
+      - name: Build solution
+        run: dotnet build RaceDay.sln --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: dotnet test RaceDay.Tests/RaceDay.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=raceday-tests.trx"
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: raceday-test-results
+          path: "**/TestResults/*.trx"
+          if-no-files-found: ignore

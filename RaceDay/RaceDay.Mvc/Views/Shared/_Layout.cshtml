@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>@ViewData["Title"] - RaceDay</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="~/css/site.css" rel="stylesheet"/>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark raced-nav"><div class="container">
+<a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">🏁 RaceDay</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="nav"><ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" asp-controller="Events" asp-action="Index">Events</a></li>
+@if(Context.Session.GetString("Role")=="Organiser"){
+<li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="Index">Dashboard</a></li><li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="Events">Manage Events</a></li><li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="Categories">Categories</a></li><li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="Enrolments">Enrolments</a></li><li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="Results">Results</a></li>
+}else if(Context.Session.GetString("Role")=="Participant"){
+<li class="nav-item"><a class="nav-link" asp-controller="Participant" asp-action="Index">Dashboard</a></li><li class="nav-item"><a class="nav-link" asp-controller="Participant" asp-action="MyEvents">My Events</a></li><li class="nav-item"><a class="nav-link" asp-controller="Participant" asp-action="Results">My Results</a></li><li class="nav-item"><a class="nav-link" asp-controller="Participant" asp-action="Profile">Profile</a></li>
+}
+</ul><div class="d-flex align-items-center gap-2">
+@if(Context.Session.GetInt32("UserID")!=null){<span class="text-white small">Hi, @Context.Session.GetString("FullName")</span><form asp-controller="Auth" asp-action="Logout" method="post"><button class="btn btn-outline-light btn-sm">Log out</button></form>}
+else{<a class="btn btn-outline-light btn-sm" asp-controller="Auth" asp-action="Login">Log in</a><a class="btn btn-warning btn-sm fw-semibold" asp-controller="Auth" asp-action="Register">Join</a>}
+</div></div></div></nav>
+<main class="container py-4">
+@if(TempData["Success"]!=null){<div class="alert alert-success">@TempData["Success"]</div>}
+@if(TempData["Error"]!=null){<div class="alert alert-danger">@TempData["Error"]</div>}
+@RenderBody()
+</main>
+<footer class="mt-5 py-4 text-center text-muted border-top"><div class="container">RaceDay · Run together. Go further.</div></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+@await RenderSectionAsync("Scripts",required:false)
+</body></html>
